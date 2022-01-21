@@ -1,0 +1,19 @@
+{
+  "SemesterStartDate": "19-01-2022",
+  "SemesterModules": [
+    {
+      "ModuleCode": "ADB",
+      "ModuleClasses": [
+        { "ClassCode": "ADB01", "ClassBids": null },
+        { "ClassCode": "ADB02", "ClassBids": null }
+      ]
+    },
+    {
+      "ModuleCode": "DL",
+      "ModuleClasses": [
+        { "ClassCode": "DL01", "ClassBids": null },
+        { "ClassCode": "DL02", "ClassBids": null }
+      ]
+    }
+  ]
+}

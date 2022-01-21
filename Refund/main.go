@@ -5,12 +5,35 @@ import(
 	"github.com/gorilla/mux"
 )
 
+const StudentAPIbaseURL =  "http://localhost:0000/api/v1"
+
+type studentInfo struct{
+	studentID string
+}
+
 // 3.15.1: give all students 20 ETI credits
 func addAll(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintf(w, "Welcome to the refund REST API!")
 	//get list of students
+	response,err := http.Get(StudentAPIbaseURL)
 
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	} else{
+		if response.StatusCode == http.StatusOK{
+			data,_ := ioutil.ReadAll(response.Body)
+			var students studentInfo[]
+			json.Unmarshal([]byte(data), &students)
+		} else{
+			w.WriteHeader(
+				http.StatusUnprocessableEntity)
+			w.Write([]byte(
+				"422 - failed to retrieve all students from student API"))
+			return
+		}
+	}
 	//for each students, api call 3.12 add 20 eti credit
+
+	
 }
 
 // 3.15.4: refund failed bids

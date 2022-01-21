@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <body>
-    <button>Give all student 20 eti tokens</button>
-    <button>allocate classes</button>
-    <button>allocate bids</button>
+    <a href="/addTokens">
+      <button>Give all student 20 eti tokens</button>
+    </a>
+    <a href="/allocateSchedule">
+      <button>allocate classes</button>
+    </a>
+    <a href="/allocateBids">
+      <button>allocate bids</button>
+    </a>
     <form method="post" action="/getTimetable">
       <input type="text" placeholder="studentid" name="studentid" />
       <input type="text" placeholder="tutorid" name="tutorid" />
