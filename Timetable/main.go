@@ -9,7 +9,6 @@ import(
 	"math/rand"
 	"encoding/json"
 	"io/ioutil"
-	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -102,6 +101,8 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// todo: generate timetable
+		
+
 
 
 	} else if r.Method == "POST" {
@@ -124,14 +125,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		
-
-		jsonFile, err := os.Open("sampleClasses.json")
-		if err != nil {
-			fmt.Println(err)
-		}
-		byteValue, _ := ioutil.ReadAll(jsonFile) 
-		json.Unmarshal([]byte(byteValue), &sem)
+	
 
 		availableTimeSchedule := []string{
 			"Monday 09:00 - 11:00","Monday 11:00 - 13:00","Monday 14:00 - 16:00","Monday 16:00 - 18:00", 

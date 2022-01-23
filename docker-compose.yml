@@ -1,0 +1,34 @@
+version: "3.3"
+
+services:
+  docker-web:
+    depends_on:
+      - docker-timetable
+      - docker-allocation
+      - docker-addcredits
+    build:
+      context: ./Web
+    container_name: web-timetable
+    ports:
+      - 8070:8070
+
+  docker-addcredits:
+    build:
+      context: ./AddCredits
+    container_name: microservice-addcredits
+    ports:
+      - 8071:8071
+
+  docker-timetable:
+    build:
+      context: ./Timetable
+    container_name: api-timetable
+    ports:
+      - 8072:8072
+
+  docker-allocation:
+    build:
+      context: ./Allocation
+    container_name: microservice-allocation
+    ports:
+      - 8073:8073

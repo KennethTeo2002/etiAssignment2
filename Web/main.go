@@ -9,6 +9,11 @@ import(
 	"github.com/gorilla/mux"
 )
 
+const addCreditsMicroserviceURL = "http://docker-addcredits:8071/addCredits"
+const timetableAPIURL = "http://docker-timetable:8072/api/timetable"
+const allocateBidURL = "http://docker-allocation:8073/allocateBid"
+
+
 func homePage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		tmpl := template.Must(template.ParseFiles("Pages/homepage.html"))
@@ -18,7 +23,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func addTokens(w http.ResponseWriter, r *http.Request){
 	fmt.Println("add tokens")
-	_, err := http.Post("http://localhost:8071/addCredits",
+	_, err := http.Post(addCreditsMicroserviceURL,
 	"application/json",nil)
 
 	if err != nil{
@@ -32,8 +37,7 @@ func addTokens(w http.ResponseWriter, r *http.Request){
 }
 
 func allocateSchedule(w http.ResponseWriter, r *http.Request){
-	fmt.Println("test")
-	_, err := http.Post("http://localhost:8072/api/timetable","application/json",nil)
+	_, err := http.Post(timetableAPIURL,"application/json",nil)
 	if err != nil{
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	} else{
@@ -43,7 +47,7 @@ func allocateSchedule(w http.ResponseWriter, r *http.Request){
 }
 
 func allocateBids(w http.ResponseWriter, r *http.Request){
-	_, err := http.Post("http://localhost:8073/allocateBid","application/json",nil)
+	_, err := http.Post(allocateBidURL,"application/json",nil)
 	if err != nil{
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	} else{
@@ -53,7 +57,7 @@ func allocateBids(w http.ResponseWriter, r *http.Request){
 }
 
 func getTimeTable(w http.ResponseWriter, r *http.Request){
-	_,err := http.Get("http://localhost:8072/api/timetable" + "?studentID=")
+	_,err := http.Get(timetableAPIURL + "?semester=17-01-2022" + "&studentID=S001")
 	if err != nil{
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	} else{
