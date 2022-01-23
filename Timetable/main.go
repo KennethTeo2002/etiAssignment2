@@ -2,20 +2,23 @@ package main
 
 import(
 	"fmt"
+	"bytes"
 	"time"
+	"net/http"
+	"log"
 	"math/rand"
+	"encoding/json"
+	"io/ioutil"
+	"os"
 
 	"github.com/gorilla/mux"
-
-	"go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Class struct {
     ClassCode string
     Schedule string
     Tutor    string
-    Capacity int32
+    Capacity int
     Students []string
 }
 
@@ -29,35 +32,38 @@ type Semester struct {
     SemesterModules []Module
 }
 
-func getSemStart(currentDate time.Time)(time.Time){
-	daysUntilMon = (1 - int(currentDate.Weekday())+7) % 7
-	semStartDate = currentDate.AddDate(0,0,daysuntilMon).Format("02 Jan 2006")
+func getSemStart(currentDate time.Time)string{
+	daysUntilMon := (1 - int(currentDate.Weekday())+7) % 7
+	semStartDate := currentDate.AddDate(0,0,daysUntilMon).Format("02-01-2006")
 	return semStartDate
 }
 
 const ClassAPIbaseURL =  "http://localhost:0000/api/v1/classes"
 
+var sem Semester 
+
 func timeTable(w http.ResponseWriter, r *http.Request) {
-	// connect to mongoDB cluster
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
-
-	if err != nil {
-		panic(err.Error())
-	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-    err = client.Connect(ctx)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer client.Disconnect(ctx)
-	timeTableDatabase := client.Database("TimeTable")
-
-	params := mux.Vars(r)
-
+	
 	if r.Method == "GET" {
+		
 		v := r.URL.Query()
 		if semester,ok := v["semester"]; ok {
-			semesterCollection = timeTableDatabase.semesterCollection(semester)
+			response,err := http.Get(ClassAPIbaseURL+"?semester=" + semester[0])
+			if err != nil {
+				fmt.Printf("The HTTP request failed with error %s\n", err)
+			} else{
+				if response.StatusCode == http.StatusOK{
+					data,_ := ioutil.ReadAll(response.Body)
+					
+					json.Unmarshal([]byte(data), &sem)
+				} else{
+					w.WriteHeader(
+						http.StatusUnprocessableEntity)
+					w.Write([]byte(
+						"422 - failed to retrieve all classes from class API"))
+					return
+				}
+			}
 		} else{
 			w.WriteHeader(
 				http.StatusUnprocessableEntity)
@@ -67,10 +73,25 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if studentID, ok := v["studentID"]; ok {
-			// run get student timetable func
-			
+			timetable := []string{}
+			for _,module := range sem.SemesterModules{
+				for _,class := range module.ModuleClasses{
+					for _,student := range class.Students{
+						if student == studentID[0]{
+							timetable = append(timetable,class.Schedule)
+						}
+					}
+				}
+			}	
 		} else if tutorID, ok := v["tutorID"]; ok {
-			// run get tutor timetable func
+			timetable := []string{}
+			for _,module := range sem.SemesterModules{
+				for _,class := range module.ModuleClasses{
+					if class.Tutor == tutorID[0]{
+						timetable = append(timetable,class.Schedule)
+					}
+				}
+			}
 
 		} else{
 			w.WriteHeader(
@@ -79,18 +100,21 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				"422 - Missing studentID or tutorID"))
 			return
 		}
+
+		// todo: generate timetable
+
+
 	} else if r.Method == "POST" {
 	// allocate class schedule
-		// get all classes
 		newSem := getSemStart(time.Now())
+		// get all classes
 		response,err := http.Get(ClassAPIbaseURL+"?semester=" + newSem)
-
 		if err != nil {
 			fmt.Printf("The HTTP request failed with error %s\n", err)
 		} else{
 			if response.StatusCode == http.StatusOK{
 				data,_ := ioutil.ReadAll(response.Body)
-				var sem Semester 
+				 
 				json.Unmarshal([]byte(data), &sem)
 			} else{
 				w.WriteHeader(
@@ -100,14 +124,21 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		
+
+		jsonFile, err := os.Open("sampleClasses.json")
+		if err != nil {
+			fmt.Println(err)
+		}
+		byteValue, _ := ioutil.ReadAll(jsonFile) 
+		json.Unmarshal([]byte(byteValue), &sem)
 
 		availableTimeSchedule := []string{
 			"Monday 09:00 - 11:00","Monday 11:00 - 13:00","Monday 14:00 - 16:00","Monday 16:00 - 18:00", 
 			"Tuesday 09:00 - 11:00","Tuesday 11:00 - 13:00","Tuesday 14:00 - 16:00","Tuesday 16:00 - 18:00", 
 			"Wednesday 09:00 - 11:00","Wednesday 11:00 - 13:00","Wednesday 14:00 - 16:00","Wednesday 16:00 - 18:00", 
 			"Thursday 09:00 - 11:00","Thursday 11:00 - 13:00","Thursday 14:00 - 16:00","Thursday 16:00 - 18:00", 
-			"Friday 09:00 - 11:00","Friday 11:00 - 13:00","Friday 14:00 - 16:00","Friday 16:00 - 18:00"
-		}
+			"Friday 09:00 - 11:00","Friday 11:00 - 13:00","Friday 14:00 - 16:00","Friday 16:00 - 18:00"}
 	
 		for _,module := range sem.SemesterModules{
 			randomNumber :=  rand.Intn(len(availableTimeSchedule))
@@ -116,16 +147,17 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 	
 			// for each class
 			for _,class := range module.ModuleClasses{
-				class.Schedule = assignedTimeSlot
-				// add schedule to db
-				InsertSchedule(timeTableDatabase, ctx ,class.ClassCode,assignedTimeSlot)
-				
+				class.Schedule = assignedTimeSlot	
 				// send put request to set schedule datetime
+				
 				classToUpdate,_ := json.Marshal(class)
-				request, _ := http.NewRequest(http.MethodPut,
-					ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.classCode,
+				_, err := http.NewRequest(http.MethodPut,
+					ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode,
 					bytes.NewBuffer(classToUpdate))
 				
+				if err != nil {
+					fmt.Printf("The HTTP request failed with error %s\n", err)
+				}			
 			}
 				
 		}
@@ -135,7 +167,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 
 func main(){
 	router := mux.NewRouter()
-	router.HandleFunc("api/timetable",timeTable).Methods(
+	router.HandleFunc("/api/timetable",timeTable).Methods(
 		"GET", "POST")
 	fmt.Println("Listening at port 8072")
 	log.Fatal(http.ListenAndServe(":8072", router))

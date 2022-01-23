@@ -32,6 +32,7 @@ func addTokens(w http.ResponseWriter, r *http.Request){
 }
 
 func allocateSchedule(w http.ResponseWriter, r *http.Request){
+	fmt.Println("test")
 	_, err := http.Post("http://localhost:8072/api/timetable","application/json",nil)
 	if err != nil{
 		fmt.Printf("The HTTP request failed with error %s\n", err)
@@ -64,6 +65,8 @@ func main(){
 	router := mux.NewRouter()
 	router.HandleFunc("/", homePage)
 	router.HandleFunc("/addTokens", addTokens)
+	router.HandleFunc("/allocateSchedule", allocateSchedule)
+	router.HandleFunc("/allocateBids", allocateBids)
 
 	fmt.Println("Listening at port 8070")
 	log.Fatal(http.ListenAndServe(":8070", router))
