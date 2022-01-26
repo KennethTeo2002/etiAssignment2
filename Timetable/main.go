@@ -23,6 +23,7 @@ type Class struct {
 
 type Module struct {
     ModuleCode string
+	ModuleName string
     ModuleClasses []Class
 }
 
@@ -37,14 +38,13 @@ func getSemStart(currentDate time.Time)string{
 	return semStartDate
 }
 
-const ClassAPIbaseURL =  "http://localhost:0000/api/v1/classes"
+const ClassAPIbaseURL =  "http://class:8041/api/v1/classes"
 
 var sem Semester 
 
 func timeTable(w http.ResponseWriter, r *http.Request) {
 	
 	if r.Method == "GET" {
-		
 		v := r.URL.Query()
 		if semester,ok := v["semester"]; ok {
 			response,err := http.Get(ClassAPIbaseURL+"?semester=" + semester[0])
@@ -53,7 +53,6 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 			} else{
 				if response.StatusCode == http.StatusOK{
 					data,_ := ioutil.ReadAll(response.Body)
-					
 					json.Unmarshal([]byte(data), &sem)
 				} else{
 					w.WriteHeader(
@@ -71,23 +70,30 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		var timetable []Class
 		if studentID, ok := v["studentID"]; ok {
-			timetable := []string{}
 			for _,module := range sem.SemesterModules{
 				for _,class := range module.ModuleClasses{
 					for _,student := range class.Students{
 						if student == studentID[0]{
-							timetable = append(timetable,class.Schedule)
+							classDetails := Class{
+								ClassCode: class.ClassCode,
+								Schedule: class.Schedule,
+							}
+							timetable = append(timetable,classDetails)
 						}
 					}
 				}
 			}	
 		} else if tutorID, ok := v["tutorID"]; ok {
-			timetable := []string{}
 			for _,module := range sem.SemesterModules{
 				for _,class := range module.ModuleClasses{
 					if class.Tutor == tutorID[0]{
-						timetable = append(timetable,class.Schedule)
+						classDetails := Class{
+							ClassCode: class.ClassCode,
+							Schedule: class.Schedule,
+						}
+						timetable = append(timetable,classDetails)
 					}
 				}
 			}
@@ -100,10 +106,8 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// todo: generate timetable
-		
-
-
+		// return timetable schedule
+		json.NewEncoder(w).Encode(timetable)
 
 	} else if r.Method == "POST" {
 	// allocate class schedule

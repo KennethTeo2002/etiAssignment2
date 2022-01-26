@@ -57,11 +57,12 @@ func allocateBids(w http.ResponseWriter, r *http.Request){
 }
 
 func getTimeTable(w http.ResponseWriter, r *http.Request){
-	_,err := http.Get(timetableAPIURL + "?semester=17-01-2022" + "&studentID=S001")
+	res,err := http.Get(timetableAPIURL + "?semester=17-01-2022" + "&studentID=S001")
 	if err != nil{
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	} else{
 		fmt.Println("allocate classes to students")
+		_ = res
 	}
 }
 
@@ -71,6 +72,7 @@ func main(){
 	router.HandleFunc("/addTokens", addTokens)
 	router.HandleFunc("/allocateSchedule", allocateSchedule)
 	router.HandleFunc("/allocateBids", allocateBids)
+	router.HandleFunc("/timetable", getTimeTable)
 
 	fmt.Println("Listening at port 8070")
 	log.Fatal(http.ListenAndServe(":8070", router))

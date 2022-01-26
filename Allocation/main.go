@@ -49,6 +49,7 @@ type Class struct {
 
 type Module struct {
     ModuleCode string
+	ModuleName string
     ModuleClasses []Class
 }
 
@@ -68,8 +69,8 @@ type TransactionInfo struct{
 }
 
 
-const BidAPIbaseURL  = "http://localhost:0000/api/v1/bids"
-const ClassAPIbaseURL =  "http://localhost:0000/api/v1/classes"
+const BidAPIbaseURL  = "http://bidding_api:8221/api/v1/bids"
+const ClassAPIbaseURL =  "http://class:8041/api/v1/classes"
 const TransactionAPIbaseURL = "http://localhost:8053/Transaction/new"
 
 func getSemStart(currentDate time.Time)string{

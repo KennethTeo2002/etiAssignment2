@@ -41,7 +41,6 @@ func addAll(w http.ResponseWriter, r *http.Request){
 	} else{
 		if resStudent.StatusCode == http.StatusOK{
 			data,_ := ioutil.ReadAll(resStudent.Body)
-			
 			json.Unmarshal([]byte(data), &students)
 		} else{
 			w.WriteHeader(
@@ -77,7 +76,9 @@ func addAll(w http.ResponseWriter, r *http.Request){
 			fmt.Printf("The HTTP request failed with error %s\n", err)
 		} else{
 			if response.StatusCode == http.StatusOK{
-				fmt.Println("add tokens to " + student.StudentID)
+				fmt.Println("Succesfully added tokens to " + student.StudentID)
+			}else{
+				fmt.Println("Failed to add tokens to " + student.StudentID)
 			}
 		}
 	}
