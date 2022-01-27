@@ -69,8 +69,8 @@ type TransactionInfo struct{
 }
 
 
-const BidAPIbaseURL  = "http://bidding_api:8221/api/v1/bids"
-const ClassAPIbaseURL =  "http://class:8041/api/v1/classes"
+const BidAPIbaseURL  = "http://localhost:8221/api/v1/bids"
+const ClassAPIbaseURL =  "http://localhost:8041/api/v1/classes"
 const TransactionAPIbaseURL = "http://localhost:8053/Transaction/new"
 
 func getSemStart(currentDate time.Time)string{
@@ -137,7 +137,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	}
 
 	// sort bids by descending
-	sort.Slice(allBids, func(i, j int) bool {
+	sort.SliceStable(allBids, func(i, j int) bool {
 		return allBids[i].BidAmount > allBids[j].BidAmount
 	  })
 
@@ -146,9 +146,11 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	for _,bid := range allBids{
 		bidStatus := true 
 		classApplying := getClass(semClasses,bid)
+		// check if class is already full
 		if len(classApplying.Students) >= classApplying.Capacity{
 			bidStatus = false
 		} 
+		// check if student already assigned to another class in same module
 		for _,module := range semClasses.SemesterModules{
 			if module.ModuleCode == bid.ModuleCode{
 				for _,class := range module.ModuleClasses{
@@ -160,6 +162,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 				}
 			}
 		}
+		// check if class bids les than 3
 		count := 0
 		for _,bid := range allBids{
 			
@@ -170,6 +173,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		if count < 3 {
 			bidStatus = false
 		}
+
 		
 		if bidStatus{
 			// if all allocation checks are successful
@@ -251,10 +255,11 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		
 	}
 
-	// todo: api call 3.8 to set student array
+	// api call 3.8 to set student array
 	for _,module := range semClasses.SemesterModules{
 		for _,class := range module.ModuleClasses{
 			if len(class.Students) > 0{
+				// class object has students assigned
 				classToUpdate,_ := json.Marshal(class)
 
 				request, _ := http.NewRequest(http.MethodPut,
@@ -269,6 +274,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 					fmt.Printf("The HTTP request failed with error %s\n", err)
 				}
 			}else{
+				// if no one in class object, delete
 				request, _ := http.NewRequest(http.MethodDelete,
 					ClassAPIbaseURL+"/"+semClasses.SemesterStartDate+"?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode, nil)
 			

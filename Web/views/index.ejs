@@ -4,10 +4,25 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Timetable troubleshooting site</title>
   </head>
   <body>
     <h1>THIS IS A TESTING PAGE!</h1>
     <h2>You shouldn't be here</h2>
+    <a href="/addToken">
+      <button>Give all student 20 eti tokens</button>
+    </a>
+    <a href="/allocateSchedule">
+      <button>allocate classes</button>
+    </a>
+    <a href="/allocateBids">
+      <button>allocate bids</button>
+    </a>
+    <form method="post" action="/timetable">
+      <input type="text" placeholder="studentid" name="studentid" />
+      <input type="text" placeholder="tutorid" name="tutorid" />
+      <input type="text" placeholder="semester" name="semester" />
+      <input type="submit" value="get Timetable" />
+    </form>
   </body>
 </html>

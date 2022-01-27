@@ -1,5 +1,9 @@
 const express = require("express");
-const http = require("http");
+const axios = require("axios");
+
+const addCreditsMicroserviceURL = "http://localhost:8071/addCredits";
+const timetableAPIURL = "http://localhost:8072/api/timetable";
+const allocateBidURL = "http://localhost:8073/allocateBid";
 
 const app = express();
 
@@ -9,33 +13,78 @@ app.use(express.json());
 app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
-  console.log("helloworld");
   res.render("index");
 });
 
 app.get("/addToken", (req, res) => {
   console.log("adding tokens");
-
-  const requestDetails = {
-    hostname: "docker-addcredits",
-    port: 8071,
-    path: "/addCredits",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-
-  const request = https.request(requestDetails, (response) => {
-    console.log(`statusCode: ${response.statusCode}`);
-  });
-  request.on("error", (error) => {
-    console.error(error);
-  });
-
-  request.end();
+  axios
+    .post(addCreditsMicroserviceURL)
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.error(error.response.data);
+    });
 
   res.redirect("/");
+});
+
+app.get("/allocateSchedule", (req, res) => {
+  console.log("allocate schedule for classes");
+
+  axios
+    .post(timetableAPIURL)
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+
+  res.redirect("/");
+});
+
+app.get("/allocateBids", (req, res) => {
+  console.log("allocate bids to classes");
+  axios
+    .post(allocateBidURL)
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+
+  res.redirect("/");
+});
+
+app.post("/timetable", (req, res) => {
+  console.log("get timetable");
+  var url = allocateBidURL;
+  if (req.body.studentid) {
+    url += "?studentID=" + req.body.studentid;
+  } else if (req.body.tutorid) {
+    url += "?tutorID=" + req.body.tutorid;
+  }
+
+  url += "&semester=" + req.body.semester;
+  console.log(url);
+  axios
+    .get(url)
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+
+  res.redirect("/timetable");
+});
+
+app.get("/timetable", (req, res) => {
+  console.log("print timetable");
+  res.render("timetable");
 });
 
 app.listen(8070);

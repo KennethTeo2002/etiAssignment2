@@ -38,12 +38,11 @@ func getSemStart(currentDate time.Time)string{
 	return semStartDate
 }
 
-const ClassAPIbaseURL =  "http://class:8041/api/v1/classes"
+const ClassAPIbaseURL =  "http://localhost:8041/api/v1/classes"
 
 var sem Semester 
 
 func timeTable(w http.ResponseWriter, r *http.Request) {
-	
 	if r.Method == "GET" {
 		v := r.URL.Query()
 		if semester,ok := v["semester"]; ok {
@@ -92,6 +91,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 						classDetails := Class{
 							ClassCode: class.ClassCode,
 							Schedule: class.Schedule,
+							Tutor: class.Tutor,
 						}
 						timetable = append(timetable,classDetails)
 					}
@@ -105,8 +105,52 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				"422 - Missing studentID or tutorID"))
 			return
 		}
-
+		daysOfWeek := []string{
+			"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
+		}
 		// return timetable schedule
+		timetableHTML := "<table>
+		<tr>
+		  <th>Time</th>
+		  <th>Monday</th>
+		  <th>Tuesday</th>
+		  <th>Wednesday</th>
+		  <th>Thursday</th>
+		  <th>Friday</th>
+		</tr>"
+		for hour := 8;i < 18;i++{
+			suffix := (hour >= 12)? 'pm' : 'am'
+			time := (hour > 12)? hour -12 : hour;
+			timetableHTML += "<tr>"
+			timetableHTML += fmt.Sprintf("<th>%s %s</th>", time,suffix)
+			for _,day := range daysOfWeek{
+				//todo
+				filled := false
+				for _, lesson := range timetable{
+					lessonDetails := strings.Split(lesson.Schedule, " ")
+					if lessonDetails[0] == day{
+						timing := TimeSpan.Parse(lessonDetails[1])
+						if timing.hour == hour{
+							timetableHTML += fmt.Sprintf("<td rowspan='2'>%s %s</td>",lesson.ClassCode,lesson.Tutor)
+							filled = true
+						}else if timing.hour == hour +1{
+							// skip table data
+							filled = true
+						}
+					}
+				}
+				if !filled{
+					timetableHTML += "<td></td>"
+				}
+			}
+
+			timetableHTML += "</tr>"
+			
+		}
+		
+
+		timetableHTML += "</table>"
+
 		json.NewEncoder(w).Encode(timetable)
 
 	} else if r.Method == "POST" {
