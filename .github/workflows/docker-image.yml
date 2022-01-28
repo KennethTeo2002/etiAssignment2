@@ -5,8 +5,8 @@ on:
     branches: [main]
 
 jobs:
-  push_frontend:
-    name: Push frontend Docker image to Docker Hub
+  push_addcredit:
+    name: Push addcredit Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -19,7 +19,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build ./Web --tag ${{ secrets.DOCKER_USERNAME }}/frontend-testingtimetable
+        run: docker build ./AddCredits --tag ${{ secrets.DOCKER_USERNAME }}/microservice-addcredits
 
       - name: Push to Docker hub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/frontend-testingtimetable
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/microservice-addcredits

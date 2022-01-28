@@ -208,7 +208,6 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			}
 		}
 		if count < 3 {
-			fmt.Println("class too little")
 			bidStatus = false
 		}
 
@@ -217,79 +216,13 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			(*classApplying).Students = append(classApplying.Students, bid.StudentID)
 			
 			// update bidding status
-			updatedBid := Bids{
-				StudentID : bid.StudentID,
-				BidAmount : bid.BidAmount,
-				BidStatus : "Successful",
-			}
-
-			bidToUpdate, _ := json.Marshal(updatedBid)
-
-			request, _ := http.NewRequest(http.MethodPut,
-				BidAPIbaseURL + "/" + semBids.SemesterStartDate + "?classCode=" + bid.ClassCode,
-				bytes.NewBuffer(bidToUpdate))
-	
-			request.Header.Set("Content-Type", "application/json")
-	
-			client := &http.Client{}
-			_, err := client.Do(request)
-
-			if err != nil {
-				//fmt.Printf("The HTTP request failed with error %s\n", err)
-				_=err
-			}
+			updateBid(bid,semBids,"Successful")
 		}else{
-			fmt.Println(bid.StudentID+"not eligible to class")
 			// refund
-			currentDateTime := time.Now()
-			formattedDT := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
-			currentDateTime.Year(), currentDateTime.Month(), currentDateTime.Day(),
-			currentDateTime.Hour(), currentDateTime.Minute(), currentDateTime.Second())
-
-			transactionDetails := TransactionInfo{
-				ttype: "BidRefund",
-				sid: "BidRefund",
-				rid: bid.StudentID,
-				ts: formattedDT,
-				tsym: "ETI",
-				ta: bid.BidAmount,
-				stat: "ping",
-			}
-
-			transactionToAdd, _ := json.Marshal(transactionDetails)
-
-			response, err := http.Post(TransactionAPIbaseURL,
-			"application/json",bytes.NewBuffer(transactionToAdd))
-
-			if err != nil{
-				fmt.Printf("The HTTP request failed with error %s\n", err)
-			} else{
-				if response.StatusCode == http.StatusOK{
-					fmt.Println("refund tokens to " + bid.StudentID)
-				}
-			}
+			refundTransaction(bid)
 
 			// update bidding status
-			updatedBid := Bids{
-				StudentID : bid.StudentID,
-				BidAmount : bid.BidAmount,
-				BidStatus : "Failed",
-			}
-
-			bidToUpdate, _ := json.Marshal(updatedBid)
-
-			request, _ := http.NewRequest(http.MethodPut,
-				BidAPIbaseURL + "/" + semBids.SemesterStartDate + "?classCode=" + bid.ClassCode,
-				bytes.NewBuffer(bidToUpdate))
-
-			request.Header.Set("Content-Type", "application/json")
-
-			client := &http.Client{}
-			_, errBid := client.Do(request)
-
-			if errBid != nil {
-				fmt.Printf("The HTTP request failed with error %s\n", errBid)
-			}
+			updateBid(bid,semBids,"Failed")
 		}
 		
 	}
@@ -297,7 +230,8 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	// api call 3.8 to set student array
 	for _,module := range semClasses.SemesterModules{
 		for _,class := range module.ModuleClasses{
-			if len(class.Students) > 0{
+			fmt.Println(class)
+			if len(class.Students) >= 0{
 				// class object has students assigned
 				classToUpdate,_ := json.Marshal(class)
 
@@ -329,7 +263,58 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	}
 }
 
+func refundTransaction(bid BidInfo){
+	currentDateTime := time.Now()
+			formattedDT := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
+			currentDateTime.Year(), currentDateTime.Month(), currentDateTime.Day(),
+			currentDateTime.Hour(), currentDateTime.Minute(), currentDateTime.Second())
 
+			transactionDetails := TransactionInfo{
+				ttype: "BidRefund",
+				sid: "BidRefund",
+				rid: bid.StudentID,
+				ts: formattedDT,
+				tsym: "ETI",
+				ta: bid.BidAmount,
+				stat: "ping",
+			}
+
+			transactionToAdd, _ := json.Marshal(transactionDetails)
+
+			response, err := http.Post(TransactionAPIbaseURL,
+			"application/json",bytes.NewBuffer(transactionToAdd))
+
+			if err != nil{
+				fmt.Printf("The HTTP request failed with error %s\n", err)
+			} else{
+				if response.StatusCode == http.StatusOK{
+					fmt.Println("refund tokens to " + bid.StudentID)
+				}
+			}
+}
+
+func updateBid(bid BidInfo, semBids SemesterBids, bidStatus string){
+	updatedBid := Bids{
+		StudentID : bid.StudentID,
+		BidAmount : bid.BidAmount,
+		BidStatus : bidStatus,
+	}
+
+	bidToUpdate, _ := json.Marshal(updatedBid)
+
+	request, _ := http.NewRequest(http.MethodPut,
+		BidAPIbaseURL + "/" + semBids.SemesterStartDate + "?classCode=" + bid.ClassCode,
+		bytes.NewBuffer(bidToUpdate))
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	_, errBid := client.Do(request)
+
+	if errBid != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", errBid)
+	}
+}
 
 func main(){
 	router := mux.NewRouter()
