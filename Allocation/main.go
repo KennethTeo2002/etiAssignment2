@@ -9,13 +9,14 @@ import(
 	"sort"
 	"bytes"
 	"log"
+	"os"
 
 	"github.com/gorilla/mux"
 )
 
 type Bids struct{
 	StudentID string
-	BidAmount int
+	BidAmount int `json:"BidAmt"`
 	BidStatus string
 }
 type ClassBids struct{
@@ -33,7 +34,7 @@ type SemesterBids struct {
 }
 type BidInfo struct{
 	StudentID string
-	BidAmount int
+	BidAmount int 
 	BidStatus string
 	ClassCode string
 	ModuleCode string
@@ -81,11 +82,12 @@ func getSemStart(currentDate time.Time)string{
 
 // 3.15.2: allocate classes by bids
 func allocateBid(w http.ResponseWriter, r *http.Request){
-	newSem := getSemStart(time.Now())
+	//newSem := getSemStart(time.Now())
 	var semBids SemesterBids 
 	var semClasses Semester 
 
 	// get all bids from 3.14
+	/*
 	resBids,errBids := http.Get(BidAPIbaseURL+"?semester=" + newSem)
 	if errBids != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errBids)
@@ -102,7 +104,19 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			return
 		}
 	}
+	*/
+	jsonBid, err1 := os.Open("sampleBidArray.json")
+    if err1 != nil {
+        fmt.Println(err1)
+    }
+    byteValue, _ := ioutil.ReadAll(jsonBid)
+    err := json.Unmarshal(byteValue, &semBids)
+    if err != nil {
+        fmt.Println(err)
+    }
+
 	// get all classes from 3.8
+	/*
 	resClass,errClass := http.Get(ClassAPIbaseURL+"?semester=" + newSem)
 	if errClass != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errClass)
@@ -119,6 +133,16 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			return
 		}
 	}
+	*/
+	jsonClass, err2 := os.Open("sampleClasses.json")
+    if err2 != nil {
+        fmt.Println(err2)
+    }
+    byteValue2, _ := ioutil.ReadAll(jsonClass)
+    err = json.Unmarshal(byteValue2, &semClasses)
+    if err != nil {
+        fmt.Println(err)
+    }
 
 	allBids := []BidInfo{}
 	for _,module := range semBids.SemesterModules{
@@ -141,11 +165,24 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		return allBids[i].BidAmount > allBids[j].BidAmount
 	  })
 
+	fmt.Println(allBids)
 
+	
 	// Allocation algo
 	for _,bid := range allBids{
 		bidStatus := true 
-		classApplying := getClass(semClasses,bid)
+		var classApplying *Class
+		for moduleIndex,module := range semClasses.SemesterModules{
+			if module.ModuleCode == bid.ModuleCode{
+				for classIndex,class := range module.ModuleClasses{
+					if class.ClassCode == bid.ClassCode{
+						classApplying = &semClasses.SemesterModules[moduleIndex].ModuleClasses[classIndex]
+					}
+				}
+			}
+		}
+		
+		
 		// check if class is already full
 		if len(classApplying.Students) >= classApplying.Capacity{
 			bidStatus = false
@@ -162,7 +199,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 				}
 			}
 		}
-		// check if class bids les than 3
+		// check if class bids less than 3
 		count := 0
 		for _,bid := range allBids{
 			
@@ -171,13 +208,13 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			}
 		}
 		if count < 3 {
+			fmt.Println("class too little")
 			bidStatus = false
 		}
 
-		
 		if bidStatus{
 			// if all allocation checks are successful
-			classApplying.Students = append(classApplying.Students,bid.StudentID)
+			(*classApplying).Students = append(classApplying.Students, bid.StudentID)
 			
 			// update bidding status
 			updatedBid := Bids{
@@ -198,9 +235,11 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			_, err := client.Do(request)
 
 			if err != nil {
-				fmt.Printf("The HTTP request failed with error %s\n", err)
+				//fmt.Printf("The HTTP request failed with error %s\n", err)
+				_=err
 			}
 		}else{
+			fmt.Println(bid.StudentID+"not eligible to class")
 			// refund
 			currentDateTime := time.Now()
 			formattedDT := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
@@ -290,18 +329,6 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func getClass(semClasses Semester, bid BidInfo) Class{
-	for _,module := range semClasses.SemesterModules{
-		if module.ModuleCode == bid.ModuleCode{
-			for _,class := range module.ModuleClasses{
-				if class.ClassCode == bid.ClassCode{
-					return class
-				}
-			}
-		}
-	}
-	return Class{}
-}
 
 
 func main(){
