@@ -4,7 +4,7 @@ const url = require("url");
 const addCreditsMicroserviceURL = "http://localhost:8071/addCredits";
 const timetableAPIURL = "http://localhost:8072/api/timetable";
 const allocateBidURL = "http://localhost:8073/allocateBid";
-
+var timetablehtml = "";
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -61,13 +61,7 @@ app.get("/allocateBids", (req, res) => {
 
 app.post("/timetable", (req, res) => {
   console.log("get timetable");
-
-  res.redirect(url.format({ pathname: "/timetable", query: req.query }));
-});
-
-app.get("/timetable", (req, res) => {
-  console.log("print timetable");
-  var url = allocateBidURL;
+  var url = timetableAPIURL;
   if (req.body.studentid) {
     url += "?studentID=" + req.body.studentid;
   } else if (req.body.tutorid) {
@@ -76,16 +70,24 @@ app.get("/timetable", (req, res) => {
 
   url += "&semester=" + req.body.semester;
   console.log(url);
+
   axios
     .get(url)
     .then(function (response) {
       timetablehtml = response.data;
-      console.log(response);
+      //console.log(response);
     })
     .catch(function (error) {
-      console.error(error);
+      timetablehtml = "<h1>No Timetable avaliable</h1>";
+      //console.error(error);
     });
-  res.render("timetable", timetablehtml);
+  res.redirect("/timetable");
+});
+
+app.get("/timetable", (req, res) => {
+  console.log("print timetable");
+  console.log(timetablehtml);
+  res.render("timetable", { timetabledata: timetablehtml });
 });
 
 app.listen(8070);
