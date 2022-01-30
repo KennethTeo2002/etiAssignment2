@@ -1,7 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const url = require("url");
-
+const schedule = require("node-schedule");
 const app = express();
 
 const addCreditsMicroserviceURL = "http://localhost:8071/addCredits";
@@ -22,6 +22,21 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
+const autoAddCredit = schedule.scheduleJob(
+  { dayOfWeek: 1, hour: 0, minute: 0 },
+  () => {
+    console.log("Free 20 credits to all!");
+    axios
+      .post(addCreditsMicroserviceURL)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error(error.response.data);
+      });
+  }
+);
+
 app.get("/addToken", (req, res) => {
   console.log("adding tokens");
   axios
@@ -35,6 +50,21 @@ app.get("/addToken", (req, res) => {
 
   res.redirect("/");
 });
+
+const autoAllocateClassSchedule = schedule.scheduleJob(
+  { dayOfWeek: 6, hour: 9, minute: 13 },
+  () => {
+    console.log("Class schedule!");
+    axios
+      .post(timetableAPIURL)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }
+);
 
 app.get("/allocateSchedule", (req, res) => {
   console.log("allocate schedule for classes");
@@ -50,6 +80,21 @@ app.get("/allocateSchedule", (req, res) => {
 
   res.redirect("/");
 });
+
+const autoAllocateBids = schedule.scheduleJob(
+  { dayOfWeek: 6, hour: 23, minute: 59 },
+  () => {
+    console.log("allocate students to classes!");
+    axios
+      .post(timetableAPIURL)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }
+);
 
 app.get("/allocateBids", (req, res) => {
   console.log("allocate bids to classes");

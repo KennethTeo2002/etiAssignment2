@@ -40,7 +40,7 @@ func getSemStart(currentDate time.Time)string{
 	return semStartDate
 }
 func getSemCurrrent(date string)string{
-	datetime := time.Parse("02-01-2006",date)
+	datetime,_ := time.Parse("02-01-2006",date)
 	daysUntilMon := (1 - int(currentDate.Weekday())+7) % 7 - 7
 	semStartDate := currentDate.AddDate(0,0,daysUntilMon).Format("02-01-2006")
 	return semStartDate
