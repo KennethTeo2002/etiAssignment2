@@ -11,7 +11,8 @@ const allocateBidURL = "http://localhost:8073/allocateBid";
 var timetablehtml = "";
 
 app.use(express.static("public"));
-app.use("/css", express.static(__dirname + "public/css"));
+
+app.use("/js", express.static(__dirname + "public/js"));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -113,14 +114,14 @@ app.get("/allocateBids", (req, res) => {
 app.post("/timetable", (req, res) => {
   var urlParams = "";
   if (req.body.studentid) {
-    urlParams += "studentID=" + req.body.studentid;
+    urlParams += "?studentID=" + req.body.studentid;
   } else if (req.body.tutorid) {
-    urlParams += "tutorID=" + req.body.tutorid;
+    urlParams += "?tutorID=" + req.body.tutorid;
   }
   if (req.body.semester) {
     urlParams += "&semester=" + req.body.semester;
   }
-  res.redirect("/timetable?" + urlParams);
+  res.redirect("/timetable" + urlParams);
 });
 
 app.get("/timetable", (req, res) => {
@@ -143,8 +144,8 @@ app.get("/timetable", (req, res) => {
     .catch(function (error) {
       timetablehtml = "<h1>Error getting timetable</h1>";
     });
+  res.locals.query = req.query;
   res.render("timetable", {
-    SemesterDateTime: req.query.semester,
     timetabledata: timetablehtml,
   });
 });
@@ -152,14 +153,14 @@ app.get("/timetable", (req, res) => {
 app.post("/changeSem", (req, res) => {
   var urlParams = "";
   if (req.query.studentid) {
-    urlParams += "studentID=" + req.query.studentid;
+    urlParams += "?studentID=" + req.query.studentid;
   } else if (req.query.tutorid) {
-    urlParams += "tutorID=" + req.query.tutorid;
+    urlParams += "?tutorID=" + req.query.tutorid;
   }
   if (req.query.semester) {
     urlParams += "&semester=" + req.body.sem;
   }
-  res.redirect("/timetable?" + urlParams);
+  res.redirect("/timetable" + urlParams);
 });
 
 app.get("/saveTT", (req, res) => {});
