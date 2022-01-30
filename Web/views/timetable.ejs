@@ -5,10 +5,127 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Timetable</title>
+    <link rel="stylesheet" href="css/timetable.css" />
   </head>
   <body>
-    Timetable
-    <a href="/saveTT"><button>Save timetable</button></a>
-    <%- locals.timetabledata %>
+    <h1 class="header">Timetable</h1>
+    <div class="semester">
+      <p>Semester <%= locals.SemesterDateTime %></p>
+    </div>
+    <div class="timetable">
+      <!-- <%- locals.timetabledata %> -->
+      <table>
+        <tr>
+          <th>Time</th>
+          <th>Monday</th>
+          <th>Tuesday</th>
+          <th>Wednesday</th>
+          <th>Thursday</th>
+          <th>Friday</th>
+        </tr>
+        <tr>
+          <th>8 am</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>9 am</th>
+          <td rowspan="2">ADB02 <br />T001</td>
+          <td rowspan="2">DL01 <br />T003</td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>10 am</th>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>11 am</th>
+          <td rowspan="2">CACM01<br />T005</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>12 pm</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>1 pm</th>
+          <td></td>
+          <td></td>
+          <td rowspan="2">DEVOP01<br />T003</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>2 pm</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>3 pm</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>4 pm</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td rowspan="2" class="filled">PRG03<br />T001</td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>5 pm</th>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </table>
+    </div>
+    <div class="footer">
+      <a onclick="changeSem()">
+        <button class="button" role="button">Change Sem</button>
+      </a>
+      <a href="/saveTT">
+        <button class="button" role="button">Save timetable</button>
+      </a>
+    </div>
+
+    <script>
+      function changeSem() {
+        let sem = prompt("Enter semester date in '30-1-2022' format");
+        if (sem != null) {
+          var url = new URL(window.location.href);
+          var search_params = url.searchParams;
+
+          // update sem
+          search_params.set("semester", sem);
+
+          url.search = search_params.toString();
+
+          var new_url = url.toString();
+
+          window.location.href = new_url;
+        }
+      }
+    </script>
   </body>
 </html>

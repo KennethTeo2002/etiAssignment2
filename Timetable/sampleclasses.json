@@ -32,7 +32,7 @@
         },
         {
           "ClassCode": "DL02",
-          "Schedule": "Tuesday 09:00 - 11:00",
+          "Schedule": "Tuesday 11:00 - 13:00",
           "Tutor": "T004",
           "Capacity": 12,
           "Students": ["S010", "S012", "S003"]

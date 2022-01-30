@@ -39,6 +39,12 @@ func getSemStart(currentDate time.Time)string{
 	semStartDate := currentDate.AddDate(0,0,daysUntilMon).Format("02-01-2006")
 	return semStartDate
 }
+func getSemCurrrent(date string)string{
+	datetime := time.Parse("02-01-2006",date)
+	daysUntilMon := (1 - int(currentDate.Weekday())+7) % 7 - 7
+	semStartDate := currentDate.AddDate(0,0,daysUntilMon).Format("02-01-2006")
+	return semStartDate
+}
 
 const ClassAPIbaseURL =  "http://localhost:8041/api/v1/classes"
 
@@ -50,7 +56,8 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 		v := r.URL.Query()
 		/*
 		if semester,ok := v["semester"]; ok {
-			response,err := http.Get(ClassAPIbaseURL+"?semester=" + semester[0])
+			semesterMonday := getSemCurrrent(semester[0])
+			response,err := http.Get(ClassAPIbaseURL+"?semester=" + semesterMonday)
 			if err != nil {
 				fmt.Printf("The HTTP request failed with error %s\n", err)
 			} else{
@@ -120,20 +127,11 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				"422 - Missing studentID or tutorID"))
 			return
 		}
-		fmt.Println("Lessons: ",timetable)
 		daysOfWeek := []string{
 			"Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
 		}
 		// return timetable schedule
-		timetableHTML := `<table>
-		<tr>
-		  <th>Time</th>
-		  <th>Monday</th>
-		  <th>Tuesday</th>
-		  <th>Wednesday</th>
-		  <th>Thursday</th>
-		  <th>Friday</th>
-		</tr>`
+		timetableHTML := `<table><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr>`
 		for hour := 8;hour < 18;hour++{
 			var suffix string
 			if hour >=12{
@@ -157,9 +155,9 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 					if lessonDetails[0] == day{
 						timing,_ := time.Parse("15:04",lessonDetails[1])
 						if timing.Hour() == hour{
-							timetableHTML += fmt.Sprintf("<td rowspan='2'>%s <br>%s</td>",lesson.ClassCode,lesson.Tutor)
+							timetableHTML += fmt.Sprintf("<td class='filled' rowspan='2'>%s <br>%s</td>",lesson.ClassCode,lesson.Tutor)
 							filled = true
-						}else if timing.Hour() == hour +1{
+						}else if timing.Hour()+1 == hour {
 							// skip table data
 							filled = true
 						}
