@@ -23,21 +23,28 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
+// 3.15.1 Add credits at start of semester
+// automated job on monday 00:00
 const autoAddCredit = schedule.scheduleJob(
   { dayOfWeek: 1, hour: 0, minute: 0 },
   () => {
-    console.log("Free 20 credits to all!");
+    console.log("Free 20 credits for all!");
     axios
       .post(addCreditsMicroserviceURL)
       .then(function (response) {
         console.log(response.data);
       })
       .catch(function (error) {
-        console.error(error.response.data);
+        if (error.response) {
+          console.error(error.response.data);
+        } else {
+          console.error("Failed to connect to microservice");
+        }
       });
   }
 );
 
+// manual api call on testing panel
 app.get("/addToken", (req, res) => {
   console.log("adding tokens");
   axios
@@ -46,27 +53,78 @@ app.get("/addToken", (req, res) => {
       console.log(response.data);
     })
     .catch(function (error) {
-      console.error(error.response.data);
+      if (error.response) {
+        console.error(error.response.data);
+      } else {
+        console.error("Failed to connect to microservice");
+      }
     });
 
   res.redirect("/");
 });
 
-const autoAllocateClassSchedule = schedule.scheduleJob(
-  { dayOfWeek: 6, hour: 9, minute: 13 },
+// 3.15.2 allocate bids for classes
+// automated job on saturday 23:59
+const autoAllocateBids = schedule.scheduleJob(
+  { dayOfWeek: 6, hour: 23, minute: 59 },
   () => {
-    console.log("Class schedule!");
+    console.log("Sorting and allocating algo :)");
     axios
       .post(timetableAPIURL)
       .then(function (response) {
         console.log(response.data);
       })
       .catch(function (error) {
-        console.error(error);
+        if (error.response) {
+          console.error(error.response.data);
+        } else {
+          console.error("Failed to connect to microservice");
+        }
       });
   }
 );
 
+// manual api call on testing panel
+app.get("/allocateBids", (req, res) => {
+  console.log("allocate bids to classes");
+  axios
+    .post(allocateBidURL)
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      if (error.response) {
+        console.error(error.response.data);
+      } else {
+        console.error("Failed to connect to microservice");
+      }
+    });
+
+  res.redirect("/");
+});
+
+// 3.15.3 Set time schedule for classes
+// automated job on friday 23:59
+const autoAllocateClassSchedule = schedule.scheduleJob(
+  { dayOfWeek: 5, hour: 23, minute: 59 },
+  () => {
+    console.log("Populate class schedules!");
+    axios
+      .post(timetableAPIURL)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        if (error.response) {
+          console.error(error.response.data);
+        } else {
+          console.error("Failed to connect to microservice");
+        }
+      });
+  }
+);
+
+// manual api call on testing panel
 app.get("/allocateSchedule", (req, res) => {
   console.log("allocate schedule for classes");
 
@@ -76,41 +134,17 @@ app.get("/allocateSchedule", (req, res) => {
       console.log(response.data);
     })
     .catch(function (error) {
-      console.error(error);
+      if (error.response) {
+        console.error(error.response.data);
+      } else {
+        console.error("Failed to connect to microservice");
+      }
     });
 
   res.redirect("/");
 });
 
-const autoAllocateBids = schedule.scheduleJob(
-  { dayOfWeek: 6, hour: 23, minute: 59 },
-  () => {
-    console.log("allocate students to classes!");
-    axios
-      .post(timetableAPIURL)
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-  }
-);
-
-app.get("/allocateBids", (req, res) => {
-  console.log("allocate bids to classes");
-  axios
-    .post(allocateBidURL)
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.error(error);
-    });
-
-  res.redirect("/");
-});
-
+//redirect to timetable with url query
 app.post("/timetable", (req, res) => {
   var urlParams = "";
   if (req.body.studentid) {
@@ -124,7 +158,9 @@ app.post("/timetable", (req, res) => {
   res.redirect("/timetable" + urlParams);
 });
 
+// 3.15.3 retrieve class timetable for user
 app.get("/timetable", (req, res) => {
+  //break down url to query api
   var apiurl = timetableAPIURL;
   if (req.query.studentid) {
     apiurl += "?studentID=" + req.query.studentid;
@@ -149,20 +185,5 @@ app.get("/timetable", (req, res) => {
     timetabledata: timetablehtml,
   });
 });
-
-app.post("/changeSem", (req, res) => {
-  var urlParams = "";
-  if (req.query.studentid) {
-    urlParams += "?studentID=" + req.query.studentid;
-  } else if (req.query.tutorid) {
-    urlParams += "?tutorID=" + req.query.tutorid;
-  }
-  if (req.query.semester) {
-    urlParams += "&semester=" + req.body.sem;
-  }
-  res.redirect("/timetable" + urlParams);
-});
-
-app.get("/saveTT", (req, res) => {});
 
 app.listen(8070);

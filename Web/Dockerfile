@@ -10,6 +10,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 8072
+EXPOSE 8070
 
 CMD [ "node", "server.js" ]

@@ -82,12 +82,13 @@ func getSemStart(currentDate time.Time)string{
 
 // 3.15.2: allocate classes by bids
 func allocateBid(w http.ResponseWriter, r *http.Request){
-	//newSem := getSemStart(time.Now())
+	
 	var semBids SemesterBids 
 	var semClasses Semester 
 
 	// get all bids from 3.14
 	/*
+	newSem := getSemStart(time.Now())
 	resBids,errBids := http.Get(BidAPIbaseURL+"?semester=" + newSem)
 	if errBids != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errBids)
@@ -105,6 +106,8 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		}
 	}
 	*/
+
+	// ------------------------------------- remove --------------------------------------------
 	jsonBid, err1 := os.Open("sampleBidArray.json")
     if err1 != nil {
         fmt.Println(err1)
@@ -114,6 +117,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
     if err != nil {
         fmt.Println(err)
     }
+	// ------------------------------------- remove --------------------------------------------
 
 	// get all classes from 3.8
 	/*
@@ -134,6 +138,8 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		}
 	}
 	*/
+
+	// ------------------------------------- remove --------------------------------------------
 	jsonClass, err2 := os.Open("sampleClasses.json")
     if err2 != nil {
         fmt.Println(err2)
@@ -143,7 +149,9 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
     if err != nil {
         fmt.Println(err)
     }
+	// ------------------------------------- remove --------------------------------------------
 
+	// unpack bidding struct into 1d array
 	allBids := []BidInfo{}
 	for _,module := range semBids.SemesterModules{
 		for _,class :=  range module.ModuleClasses{
@@ -160,7 +168,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		}
 	}
 
-	// sort bids by descending
+	// sort bids by descending bid amount
 	sort.SliceStable(allBids, func(i, j int) bool {
 		return allBids[i].BidAmount > allBids[j].BidAmount
 	  })
@@ -168,7 +176,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	fmt.Println(allBids)
 
 	
-	// Allocation algo
+	// loop through each bid 
 	for _,bid := range allBids{
 		bidStatus := true 
 		var classApplying *Class
@@ -182,7 +190,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			}
 		}
 		
-		
+		// Allocation algorithm checks
 		// check if class is already full
 		if len(classApplying.Students) >= classApplying.Capacity{
 			bidStatus = false
@@ -202,7 +210,6 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		// check if class bids less than 3
 		count := 0
 		for _,bid := range allBids{
-			
 			if bid.ClassCode == classApplying.ClassCode{
 				count += 1
 			}

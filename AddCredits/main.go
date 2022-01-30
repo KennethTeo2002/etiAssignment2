@@ -15,9 +15,6 @@ import(
 const StudentAPIbaseURL =  "http://localhost:8103/api/v1/students"
 const TransactionAPIbaseURL = "http://localhost:8053/Transaction/new"
 
-type StudentInfo struct{
-	StudentID string
-}
 
 type TransactionInfo struct{
 	Ttype string
@@ -31,7 +28,7 @@ type TransactionInfo struct{
 
 // 3.15.1: give all students 20 ETI credits
 func addAll(w http.ResponseWriter, r *http.Request){
-	var students []StudentInfo
+	var students []string
 	//get list of all student id from 3.5
 	resStudent,errStudent := http.Get(StudentAPIbaseURL)
 
@@ -52,22 +49,14 @@ func addAll(w http.ResponseWriter, r *http.Request){
 	// ------------------------------------- remove --------------------------------------------
 	jsonString := 
 	`[
-		{
-			"StudentID":"S001"
-		},
-		{
-			"StudentID":"S002"
-		},
-		{
-			"StudentID":"S004"
-		}
+		"S001","S002","S004"
 	]`
+
 	json.Unmarshal([]byte(jsonString), &students)
-	fmt.Println(students)
 	// ------------------------------------- remove --------------------------------------------
 
 	allTransactionPassed := true
-	// loop through all students and send an ETI +20 transaction to 3.12
+	// loop through all students
 	for _,student := range students{
 		currentDateTime := time.Now()
 		formattedDT := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
@@ -77,7 +66,7 @@ func addAll(w http.ResponseWriter, r *http.Request){
 		transactionDetails := TransactionInfo{
 			Ttype: "Timetable",
 			Sid: "Timetable",
-			Rid: student.StudentID,
+			Rid: student,
 			Ts: formattedDT,
 			Tsym: "ETI",
 			Ta: 20,
@@ -85,6 +74,7 @@ func addAll(w http.ResponseWriter, r *http.Request){
 		
 		transactionToAdd, _ := json.Marshal(transactionDetails)
 
+		// send an ETI +20 transaction to 3.12
 		response, err := http.Post(TransactionAPIbaseURL,
 		"application/json", bytes.NewBuffer(transactionToAdd))
 		
@@ -93,17 +83,21 @@ func addAll(w http.ResponseWriter, r *http.Request){
 			allTransactionPassed = false
 		} else{
 			if response.StatusCode == http.StatusOK{
-				fmt.Println("Succesfully added tokens to " + student.StudentID)
+				fmt.Println("Succesfully added tokens to " + student)
 			}else{
-				fmt.Println("Failed to add tokens to " + student.StudentID)
+				fmt.Println("Failed to add tokens to " + student)
 				allTransactionPassed = false
 			}
 		}
 	}
+	// return status code
 	if !allTransactionPassed{
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("500 - One or more transaction(s) failed to work"))
 		return
+	} else{
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("All tokens successfully added"))
 	}
 }
 

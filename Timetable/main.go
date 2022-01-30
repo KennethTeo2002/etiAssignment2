@@ -48,11 +48,13 @@ func getSemCurrrent(date string)string{
 
 const ClassAPIbaseURL =  "http://localhost:8041/api/v1/classes"
 
-var sem Semester 
+
 
 func timeTable(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
+	var sem Semester
 
+	if r.Method == "GET" {
+		// retrieve all class information for that semester
 		v := r.URL.Query()
 		/*
 		if semester,ok := v["semester"]; ok {
@@ -80,6 +82,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		*/
+		// ------------------------------------- remove --------------------------------------------
 		jsonClass, err := os.Open("sampleClasses.json")
 		if err != nil {
 			fmt.Println(err)
@@ -89,7 +92,9 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 		}
+		// ------------------------------------- remove --------------------------------------------
 
+		// filter out only classes the user is in 
 		var timetable []Class
 		if studentID, ok := v["studentID"]; ok {
 			for _,module := range sem.SemesterModules{
@@ -119,7 +124,6 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
-
 		} else{
 			w.WriteHeader(
 				http.StatusUnprocessableEntity)
@@ -130,8 +134,9 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 		daysOfWeek := []string{
 			"Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
 		}
-		// return timetable schedule
+		// generate timetable html
 		timetableHTML := `<table><tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th></tr>`
+		// loop through each td in timetable
 		for hour := 8;hour < 18;hour++{
 			var suffix string
 			if hour >=12{
@@ -155,32 +160,30 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 					if lessonDetails[0] == day{
 						timing,_ := time.Parse("15:04",lessonDetails[1])
 						if timing.Hour() == hour{
+							// add lesson information
 							timetableHTML += fmt.Sprintf("<td class='filled' rowspan='2'>%s <br>%s</td>",lesson.ClassCode,lesson.Tutor)
 							filled = true
 						}else if timing.Hour()+1 == hour {
-							// skip table data
+							// skip table data, since 2 hour lessons 
 							filled = true
 						}
 					}
 				}
 				if !filled{
+					// if timeslot has no lessons
 					timetableHTML += "<td></td>"
 				}
 			}
-
 			timetableHTML += "</tr>"
-			
 		}
-		
 
 		timetableHTML += "</table>"
-
 		json.NewEncoder(w).Encode(timetableHTML)
 
 	} else if r.Method == "POST" {
 	// allocate class schedule
 		newSem := getSemStart(time.Now())
-		// get all classes
+		// get all classes for next semester
 		response,err := http.Get(ClassAPIbaseURL+"?semester=" + newSem)
 		if err != nil {
 			fmt.Printf("The HTTP request failed with error %s\n", err)
