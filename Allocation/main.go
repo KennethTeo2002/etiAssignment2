@@ -173,9 +173,6 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		return allBids[i].BidAmount > allBids[j].BidAmount
 	  })
 
-	fmt.Println(allBids)
-
-	
 	// loop through each bid 
 	for _,bid := range allBids{
 		bidStatus := true 
@@ -223,16 +220,34 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			(*classApplying).Students = append(classApplying.Students, bid.StudentID)
 			
 			// update bidding status
-			updateBid(bid,semBids,"Successful")
+			err := updateBid(bid,semBids,"Successful")
+			if err{
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				w.Write([]byte("422 - failed to update bid api"))
+				return
+			}
+
 		}else{
 			// refund
-			refundTransaction(bid)
+			transactionError := refundTransaction(bid)
+			if transactionError{
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				w.Write([]byte("422 - failed to send transaction api"))
+				return
+			}
 
 			// update bidding status
-			updateBid(bid,semBids,"Failed")
+			bidError := updateBid(bid,semBids,"Failed")
+			if bidError{
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				w.Write([]byte("422 - failed to update bid api"))
+				return
+			}
 		}
 		
 	}
+
+	classUpdateErr := false
 
 	// api call 3.8 to set student array
 	for _,module := range semClasses.SemesterModules{
@@ -249,9 +264,14 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 				request.Header.Set("Content-Type", "application/json")
 		
 				client := &http.Client{}
-				_, err := client.Do(request)
+				response, err := client.Do(request)
 				if err != nil {
 					fmt.Printf("The HTTP request failed with error %s\n", err)
+					classUpdateErr = true
+				}else{
+					if response.StatusCode != http.StatusOK{
+						classUpdateErr = true
+					}
 				}
 			}else{
 				// if no one in class object, delete
@@ -259,24 +279,39 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 					ClassAPIbaseURL+"/"+semClasses.SemesterStartDate+"?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode, nil)
 			
 				client := &http.Client{}
-				_, err := client.Do(request)
+				response, err := client.Do(request)
 			
 				if err != nil {
 					fmt.Printf("The HTTP request failed with error %s\n", err)
+					classUpdateErr = true
+				}else{
+					if response.StatusCode != http.StatusOK{
+						classUpdateErr = true
+					}
 				}
 			}
 			
 		}
 	}
+
+	if classUpdateErr{
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		w.Write([]byte("422 - failed to update class api"))
+		return
+	}else{
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 }
 
-func refundTransaction(bid BidInfo){
+func refundTransaction(bid BidInfo)bool{
+	apiErr := true
 	currentDateTime := time.Now()
-			formattedDT := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
-			currentDateTime.Year(), currentDateTime.Month(), currentDateTime.Day(),
-			currentDateTime.Hour(), currentDateTime.Minute(), currentDateTime.Second())
+	formattedDT := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
+		currentDateTime.Year(), currentDateTime.Month(), currentDateTime.Day(),
+		currentDateTime.Hour(), currentDateTime.Minute(), currentDateTime.Second())
 
-			transactionDetails := TransactionInfo{
+	transactionDetails := TransactionInfo{
 				ttype: "BidRefund",
 				sid: "BidRefund",
 				rid: bid.StudentID,
@@ -286,21 +321,25 @@ func refundTransaction(bid BidInfo){
 				stat: "ping",
 			}
 
-			transactionToAdd, _ := json.Marshal(transactionDetails)
+	transactionToAdd, _ := json.Marshal(transactionDetails)
 
-			response, err := http.Post(TransactionAPIbaseURL,
+	response, err := http.Post(TransactionAPIbaseURL,
 			"application/json",bytes.NewBuffer(transactionToAdd))
 
-			if err != nil{
-				fmt.Printf("The HTTP request failed with error %s\n", err)
-			} else{
-				if response.StatusCode == http.StatusOK{
-					fmt.Println("refund tokens to " + bid.StudentID)
-				}
-			}
+	if err != nil{
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	} else{
+		if response.StatusCode == http.StatusOK{
+			fmt.Println("refund tokens to " + bid.StudentID)
+			apiErr = false
+		}
+	}
+
+	return apiErr
 }
 
-func updateBid(bid BidInfo, semBids SemesterBids, bidStatus string){
+func updateBid(bid BidInfo, semBids SemesterBids, bidStatus string)bool{
+	apiErr := true
 	updatedBid := Bids{
 		StudentID : bid.StudentID,
 		BidAmount : bid.BidAmount,
@@ -316,16 +355,21 @@ func updateBid(bid BidInfo, semBids SemesterBids, bidStatus string){
 	request.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
-	_, errBid := client.Do(request)
+	resBid, errBid := client.Do(request)
 
 	if errBid != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errBid)
+	}else{
+		if resBid.StatusCode == http.StatusOK{
+			apiErr = false
+		}
 	}
+	return apiErr
 }
 
 func main(){
 	router := mux.NewRouter()
 	router.HandleFunc("/allocateBid",allocateBid)
-	fmt.Println("Listening at port 8073")
-	log.Fatal(http.ListenAndServe(":8073", router))
+	fmt.Println("Listening at port 8072")
+	log.Fatal(http.ListenAndServe(":8072", router))
 }

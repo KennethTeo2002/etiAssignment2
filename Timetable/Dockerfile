@@ -12,6 +12,6 @@ COPY *.go ./
 
 RUN go build -o /timetable-docker
 
-EXPOSE 8072
+EXPOSE 8073
 
 CMD ["/timetable-docker"]

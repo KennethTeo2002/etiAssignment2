@@ -5,8 +5,8 @@ const schedule = require("node-schedule");
 const app = express();
 
 const addCreditsMicroserviceURL = "http://localhost:8071/addCredits";
-const timetableAPIURL = "http://localhost:8072/api/timetable";
-const allocateBidURL = "http://localhost:8073/allocateBid";
+const allocateBidURL = "http://localhost:8072/allocateBid";
+const timetableAPIURL = "http://localhost:8073/api/timetable";
 
 var timetablehtml = "";
 

@@ -12,6 +12,6 @@ COPY *.go ./
 
 RUN go build -o /allocation-docker
 
-EXPOSE 8073
+EXPOSE 8072
 
 CMD ["/allocation-docker"]

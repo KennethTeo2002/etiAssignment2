@@ -238,6 +238,6 @@ func main(){
 	router := mux.NewRouter()
 	router.HandleFunc("/api/timetable",timeTable).Methods(
 		"GET", "POST")
-	fmt.Println("Listening at port 8072")
-	log.Fatal(http.ListenAndServe(":8072", router))
+	fmt.Println("Listening at port 8073")
+	log.Fatal(http.ListenAndServe(":8073", router))
 }
