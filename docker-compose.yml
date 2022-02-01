@@ -1,17 +1,17 @@
 version: "3.3"
 
 services:
-  # docker-web:
-  #   network_mode: bridge
-  #   depends_on:
-  #     - docker-timetable
-  #     - docker-allocation
-  #     - docker-addcredits
-  #   build:
-  #     context: ./Web
-  #   container_name: web-timetable
-  #   ports:
-  #     - 8070:8070
+  docker-web:
+    network_mode: bridge
+    depends_on:
+      - docker-timetable
+      - docker-allocation
+      - docker-addcredits
+    build:
+      context: ./Web
+    container_name: web-timetable
+    ports:
+      - 8070:8070
 
   docker-addcredits:
     network_mode: bridge
@@ -21,18 +21,17 @@ services:
     ports:
       - 8071:8071
 
-  docker-timetable:
-    network_mode: bridge
-    build:
-      context: ./Timetable
-    container_name: api-timetable
-    ports:
-      - 8072:8072
-
   docker-allocation:
     network_mode: bridge
     build:
       context: ./Allocation
     container_name: microservice-allocation
+    ports:
+      - 8072:8072
+  docker-timetable:
+    network_mode: bridge
+    build:
+      context: ./Timetable
+    container_name: api-timetable
     ports:
       - 8073:8073

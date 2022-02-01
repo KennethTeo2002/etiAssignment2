@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 8070
 
-CMD [ "node", "server.js" ]
+CMD [ "node", "main.js" ]
