@@ -12,13 +12,39 @@ The task breakdown for this assignment is as follows:
 - 3.15.3. Generate timetable
 - 3.15.4. Auto refund failed bids
 
-## Design consideration of microservices
-
 ## Architecture diagram
 
-images of diagram
+<ins>Add credit microservice</ins>
+
+![Add credit microservice design](addCreditDesign.png?raw=true "Add credit design")
+
+<ins>Allocate bids microservice</ins>
+
+![Allocate bids microservice design](allocateBidsDesign.png?raw=true "Allocate bids design")
+
+<ins>Timetable microservice</ins>
+
+![Timetable microservice design](timetableDesign.png?raw=true "Timetable design")
 
 **\*For a more in-depth documentation of the microservices, please refer to the [API Reference](./APIDocumentation.md) file**
+
+Unlike other packages, the task breakdown for 3.15 are isolated and have no correlation with each other. Thus, I decided to split the project into 3 microservices, AddCredit, AllocateBids and Timetable.
+
+The add credit microservice doesn't follow the REST API format, as it only requires one functionality, which is to add 20 ETI credits to all student wallet. Thus, I did not use the different methods when creating this microservice. Similarly, the allocate bids microservice's only usage is to sort out bids into classes, so no methods were created. Whereas for Timetable, since I have 2 requirements, deconflicting the class schedules by allocating a unique timeslot for each class, as well as retrieving the timetable for a specific user, Timetable is a REST API which uses the POST and GET methods.
+
+### Scalability
+
+Since add credit and allocate bids are backend server functions that should only be called by a time scheduled job running once a week, scaling is not an issue.
+
+Whereas, for timetable, since the GET method is public for users, scaling is required, in case of a surge in students looking up their timetable. So, by isolating this requirement from the previous 2, the timetable API can be scaled up without affecting the add credit and allocate bids microservices.
+
+### Security
+
+For add credit and allocate bids, since they are backend server functions, the endpoints are not exposed to public, these microservices could just be deployed on a local server which is called by an internal clock system, so not much security is required.
+
+Currently for timetable, since other students needs to implement my services into their pages, and it might be hard for them to implement the authentication on their end, I decided not to create any authentication, instead they can run the api call internally on their side with the student's session token, and the api would return the raw html code for the timetable.
+
+However, if I were to create an authenication system, instead of inputting their userID raw, I would require the users to send their session id and sesson key to my api, so that I can refer to the login redux cache and retrieve their userID from there.
 
 ## Link to your container image
 
