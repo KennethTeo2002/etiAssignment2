@@ -46,14 +46,6 @@ func addAll(w http.ResponseWriter, r *http.Request){
 			return
 		}
 	}
-	// ------------------------------------- remove --------------------------------------------
-	jsonString := 
-	`[
-		"S001","S002","S004"
-	]`
-
-	json.Unmarshal([]byte(jsonString), &students)
-	// ------------------------------------- remove --------------------------------------------
 
 	allTransactionPassed := true
 	// loop through all students
