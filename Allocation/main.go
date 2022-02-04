@@ -9,7 +9,6 @@ import(
 	"sort"
 	"bytes"
 	"log"
-	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -87,7 +86,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	var semClasses Semester 
 
 	// get all bids from 3.14
-	/*
+	
 	newSem := getSemStart(time.Now())
 	resBids,errBids := http.Get(BidAPIbaseURL+"?semester=" + newSem)
 	if errBids != nil {
@@ -105,22 +104,12 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			return
 		}
 	}
-	*/
+	
 
-	// ------------------------------------- remove --------------------------------------------
-	jsonBid, err1 := os.Open("sampleBidArray.json")
-    if err1 != nil {
-        fmt.Println(err1)
-    }
-    byteValue, _ := ioutil.ReadAll(jsonBid)
-    err := json.Unmarshal(byteValue, &semBids)
-    if err != nil {
-        fmt.Println(err)
-    }
-	// ------------------------------------- remove --------------------------------------------
+	
 
 	// get all classes from 3.8
-	/*
+	
 	resClass,errClass := http.Get(ClassAPIbaseURL+"?semester=" + newSem)
 	if errClass != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errClass)
@@ -137,19 +126,9 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			return
 		}
 	}
-	*/
+	
 
-	// ------------------------------------- remove --------------------------------------------
-	jsonClass, err2 := os.Open("sampleClasses.json")
-    if err2 != nil {
-        fmt.Println(err2)
-    }
-    byteValue2, _ := ioutil.ReadAll(jsonClass)
-    err = json.Unmarshal(byteValue2, &semClasses)
-    if err != nil {
-        fmt.Println(err)
-    }
-	// ------------------------------------- remove --------------------------------------------
+	
 
 	// unpack bidding struct into 1d array
 	allBids := []BidInfo{}
