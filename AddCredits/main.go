@@ -35,7 +35,8 @@ func addAll(w http.ResponseWriter, r *http.Request){
 	if errStudent != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errStudent)
 		// student API fail safe
-		students = ["S0001","S0002"]
+		students[0] = "S0001"
+		students[1] = "S0002"
 
 	} else{
 		if resStudent.StatusCode == http.StatusOK{
