@@ -99,7 +99,7 @@ func addAll(w http.ResponseWriter, r *http.Request){
 
 func main(){
 	router := mux.NewRouter()
-	router.HandleFunc("/addCredits",addAll).Methods("POST")
+	router.HandleFunc("/addCredits",addAll).Methods("GET","POST")
 	fmt.Println("Listening at port 8071")
 	log.Fatal(http.ListenAndServe(":8071", router))
 	

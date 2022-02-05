@@ -348,7 +348,7 @@ func updateBid(bid BidInfo, semBids SemesterBids, bidStatus string)bool{
 
 func main(){
 	router := mux.NewRouter()
-	router.HandleFunc("/allocateBid",allocateBid).Methods("POST")
+	router.HandleFunc("/allocateBid",allocateBid).Methods("GET","POST")
 	fmt.Println("Listening at port 8072")
 	log.Fatal(http.ListenAndServe(":8072", router))
 }
