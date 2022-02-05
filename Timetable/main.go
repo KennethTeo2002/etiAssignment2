@@ -194,7 +194,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 
 	} else if r.Method == "POST" {
 	// allocate class schedule
-		newSem := getSemStart(time.Now())
+		newSem := getSemStart(time.Now().In(time.FixedZone("UTC+8", 8*60*60)))
 		// get all classes for next semester
 		response,err := http.Get(ClassAPIbaseURL+"?semester=" + newSem)
 		if err != nil {

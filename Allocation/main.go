@@ -87,7 +87,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 
 	// get all bids from 3.14
 	
-	newSem := getSemStart(time.Now())
+	newSem := getSemStart(time.Now().In(time.FixedZone("UTC+8", 8*60*60)))
 	resBids,errBids := http.Get(BidAPIbaseURL+"?semester=" + newSem)
 	if errBids != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errBids)
@@ -295,7 +295,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 
 func refundTransaction(bid BidInfo)bool{
 	apiErr := true
-	currentDateTime := time.Now()
+	currentDateTime := time.Now().In(time.FixedZone("UTC+8", 8*60*60))
 	formattedDT := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
 		currentDateTime.Year(), currentDateTime.Month(), currentDateTime.Day(),
 		currentDateTime.Hour(), currentDateTime.Minute(), currentDateTime.Second())

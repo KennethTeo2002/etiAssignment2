@@ -54,7 +54,7 @@ func addAll(w http.ResponseWriter, r *http.Request){
 	allTransactionPassed := true
 	// loop through all students
 	for _,student := range students{
-		currentDateTime := time.Now()
+		currentDateTime := time.Now().In(time.FixedZone("UTC+8", 8*60*60))
 		formattedDT := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
         currentDateTime.Year(), currentDateTime.Month(), currentDateTime.Day(),
         currentDateTime.Hour(), currentDateTime.Minute(), currentDateTime.Second())
