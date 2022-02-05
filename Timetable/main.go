@@ -79,11 +79,23 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 					data,_ := ioutil.ReadAll(response.Body)
 					json.Unmarshal([]byte(data), &sem)
 				} else{
+					// class api fail safe
+					jsonFile, err := os.Open("sampleClass.json")
+					if err != nil {
+						fmt.Println(err)
+					}
+					byteValue, _ := ioutil.ReadAll(jsonFile)
+					err = json.Unmarshal(byteValue, &sem)
+					if err != nil {
+						fmt.Println(err)
+					}
+					/*
 					w.WriteHeader(
 						http.StatusUnprocessableEntity)
 					w.Write([]byte(
 						"422 - failed to retrieve all classes from class API"))
 					return
+					*/
 				}
 			}
 		} else{
