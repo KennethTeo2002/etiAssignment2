@@ -10,6 +10,7 @@ import(
 	"encoding/json"
 	"io/ioutil"
 	"strings"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -61,6 +62,18 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 			response,err := http.Get(ClassAPIbaseURL+"?semester=" + semesterMonday)
 			if err != nil {
 				fmt.Printf("The HTTP request failed with error %s\n", err)
+
+				// class api fail safe
+				jsonFile, err := os.Open("sampleClass.json")
+				if err != nil {
+					fmt.Println(err)
+				}
+				byteValue, _ := ioutil.ReadAll(jsonFile)
+				err = json.Unmarshal(byteValue, &sem)
+				if err != nil {
+					fmt.Println(err)
+				}
+
 			} else{
 				if response.StatusCode == http.StatusOK{
 					data,_ := ioutil.ReadAll(response.Body)
@@ -165,7 +178,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 		}
 
 		timetableHTML += "</table>"
-		json.NewEncoder(w).Encode(timetableHTML)
+		w.Write([]byte(timetableHTML))
 
 	} else if r.Method == "POST" {
 	// allocate class schedule

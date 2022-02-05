@@ -91,6 +91,11 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	resBids,errBids := http.Get(BidAPIbaseURL+"?semester=" + newSem)
 	if errBids != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errBids)
+		w.WriteHeader(
+			http.StatusUnprocessableEntity)
+		w.Write([]byte(
+			"422 - failed to retrieve all bids from bids API"))
+		return
 	} else{
 		if resBids.StatusCode == http.StatusOK{
 			data,_ := ioutil.ReadAll(resBids.Body)
@@ -113,6 +118,11 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	resClass,errClass := http.Get(ClassAPIbaseURL+"?semester=" + newSem)
 	if errClass != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errClass)
+		w.WriteHeader(
+			http.StatusUnprocessableEntity)
+		w.Write([]byte(
+			"422 - failed to retrieve all classes from classes API"))
+		return
 	} else{
 		if resClass.StatusCode == http.StatusOK{
 			data,_ := ioutil.ReadAll(resClass.Body)

@@ -35,8 +35,8 @@ func addAll(w http.ResponseWriter, r *http.Request){
 	if errStudent != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errStudent)
 		// student API fail safe
-		students[0] = "S0001"
-		students[1] = "S0002"
+		students = append(students,"S0001")
+		students = append(students,"S0002")
 
 	} else{
 		if resStudent.StatusCode == http.StatusOK{
@@ -94,6 +94,7 @@ func addAll(w http.ResponseWriter, r *http.Request){
 	} else{
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("All tokens successfully added"))
+		return
 	}
 }
 

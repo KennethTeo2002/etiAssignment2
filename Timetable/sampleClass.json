@@ -1,0 +1,43 @@
+{
+  "SemesterStartDate": "17-01-2022",
+  "SemesterModules": [
+    {
+      "ModuleCode": "ADB",
+      "ModuleClasses": [
+        {
+          "ClassCode": "ADB02",
+          "Schedule": "Monday 09:00 - 11:00",
+          "Tutor": "T001",
+          "Capacity": 10,
+          "Students": ["S001", "S002", "S003"]
+        },
+        {
+          "ClassCode": "ADB01",
+          "Schedule": "Monday 09:00 - 11:00",
+          "Tutor": "T002",
+          "Capacity": 5,
+          "Students": ["S004", "S005", "S006"]
+        }
+      ]
+    },
+    {
+      "ModuleCode": "DL",
+      "ModuleClasses": [
+        {
+          "ClassCode": "DL01",
+          "Schedule": "Tuesday 11:00 - 13:00",
+          "Tutor": "T003",
+          "Capacity": 11,
+          "Students": ["S007", "S002", "S001"]
+        },
+        {
+          "ClassCode": "DL02",
+          "Schedule": "Tuesday 11:00 - 13:00",
+          "Tutor": "T004",
+          "Capacity": 12,
+          "Students": ["S010", "S012", "S003"]
+        }
+      ]
+    }
+  ]
+}
