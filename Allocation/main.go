@@ -69,9 +69,9 @@ type TransactionInfo struct{
 }
 
 
-const BidAPIbaseURL  = "http://localhost:8221/api/v1/bids"
-const ClassAPIbaseURL =  "http://localhost:8041/api/v1/classes"
-const TransactionAPIbaseURL = "http://localhost:8053/Transaction/new"
+const BidAPIbaseURL  = "http://10.31.11.11:8221/api/v1/bids"
+const ClassAPIbaseURL =  "http://10.31.11.11:8041/api/v1/classes"
+const TransactionAPIbaseURL = "http://10.31.11.11:8053/Transaction/new"
 
 func getSemStart(currentDate time.Time)string{
 	daysUntilMon := (1 - int(currentDate.Weekday())+7) % 7

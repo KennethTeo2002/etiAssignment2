@@ -12,8 +12,8 @@ import(
 	"github.com/gorilla/mux"
 )
 
-const StudentAPIbaseURL =  "http://localhost:8103/api/v1/students"
-const TransactionAPIbaseURL = "http://localhost:8053/Transaction/new"
+const StudentAPIbaseURL =  "http://10.31.11.11:8103/api/v1/students"
+const TransactionAPIbaseURL = "http://10.31.11.11:8053/Transaction/new"
 
 
 type TransactionInfo struct{

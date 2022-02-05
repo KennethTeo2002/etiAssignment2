@@ -46,7 +46,7 @@ func getSemCurrrent(date string)string{
 	return semStartDate
 }
 
-const ClassAPIbaseURL =  "http://localhost:8041/api/v1/classes"
+const ClassAPIbaseURL =  "http://10.31.11.11:8041/api/v1/classes"
 
 
 
