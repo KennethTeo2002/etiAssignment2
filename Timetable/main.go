@@ -10,7 +10,6 @@ import(
 	"encoding/json"
 	"io/ioutil"
 	"strings"
-	"os"
 
 	"github.com/gorilla/mux"
 )
