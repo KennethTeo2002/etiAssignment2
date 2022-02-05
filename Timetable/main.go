@@ -56,7 +56,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// retrieve all class information for that semester
 		v := r.URL.Query()
-		/*
+		
 		if semester,ok := v["semester"]; ok {
 			semesterMonday := getSemCurrrent(semester[0])
 			response,err := http.Get(ClassAPIbaseURL+"?semester=" + semesterMonday)
@@ -81,18 +81,6 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				"422 - Missing semester value"))
 			return
 		}
-		*/
-		// ------------------------------------- remove --------------------------------------------
-		jsonClass, err := os.Open("sampleClasses.json")
-		if err != nil {
-			fmt.Println(err)
-		}
-		byteValue, _ := ioutil.ReadAll(jsonClass)
-		err = json.Unmarshal(byteValue, &sem)
-		if err != nil {
-			fmt.Println(err)
-		}
-		// ------------------------------------- remove --------------------------------------------
 
 		// filter out only classes the user is in 
 		var timetable []Class
