@@ -41,14 +41,12 @@ func getSemStart(currentDate time.Time)string{
 }
 func getSemCurrrent(date string)string{
 	datetime,_ := time.Parse("02-01-2006",date)
-	daysUntilMon := (1 - int(datetime.Weekday())+7) % 7 - 7
-	semStartDate := datetime.AddDate(0,0,daysUntilMon).Format("02-01-2006")
+	daysUntilMon := (1 - int(datetime.Weekday())+7) % 7
+	semStartDate := datetime.AddDate(0,0,daysUntilMon).AddDate(0,0,-7).Format("02-01-2006")
 	return semStartDate
 }
 
 const ClassAPIbaseURL =  "http://10.31.11.11:8041/api/v1/classes"
-
-
 
 func timeTable(w http.ResponseWriter, r *http.Request) {
 	var sem Semester
@@ -62,40 +60,14 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 			response,err := http.Get(ClassAPIbaseURL+"/" + semesterMonday)
 			if err != nil {
 				fmt.Printf("The HTTP request failed with error %s\n", err)
-
-				// class api fail safe
-				jsonFile, err := os.Open("sampleClass.json")
-				if err != nil {
-					fmt.Println(err)
-				}
-				byteValue, _ := ioutil.ReadAll(jsonFile)
-				err = json.Unmarshal(byteValue, &sem)
-				if err != nil {
-					fmt.Println(err)
-				}
-
 			} else{
 				if response.StatusCode == http.StatusOK{
 					data,_ := ioutil.ReadAll(response.Body)
 					json.Unmarshal([]byte(data), &sem)
 				} else{
-					// class api fail safe
-					jsonFile, err := os.Open("sampleClass.json")
 					if err != nil {
 						fmt.Println(err)
 					}
-					byteValue, _ := ioutil.ReadAll(jsonFile)
-					err = json.Unmarshal(byteValue, &sem)
-					if err != nil {
-						fmt.Println(err)
-					}
-					/*
-					w.WriteHeader(
-						http.StatusUnprocessableEntity)
-					w.Write([]byte(
-						"422 - failed to retrieve all classes from class API"))
-					return
-					*/
 				}
 			}
 		} else{
@@ -240,7 +212,6 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				
 				classToUpdate,_ := json.Marshal(class)
 
-				w.Write([]byte("url: "+ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode + "classinfo: "+ string(classToUpdate)))
 				request, _ := http.NewRequest(http.MethodPut,
 					ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode,
 					bytes.NewBuffer(classToUpdate))
