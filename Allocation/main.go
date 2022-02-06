@@ -309,7 +309,7 @@ func refundTransaction(bid BidInfo)bool{
 
 	transactionToAdd, _ := json.Marshal(transactionDetails)
 
-	response, err := http.Post(TransactionAPIbaseURL,
+	_, err := http.Post(TransactionAPIbaseURL,
 			"application/json",bytes.NewBuffer(transactionToAdd))
 
 	if err != nil{

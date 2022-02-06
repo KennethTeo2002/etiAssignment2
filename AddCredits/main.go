@@ -71,7 +71,7 @@ func addAll(w http.ResponseWriter, r *http.Request){
 		transactionToAdd, _ := json.Marshal(transactionDetails)
 
 		// send an ETI +20 transaction to 3.12
-		response, err := http.Post(TransactionAPIbaseURL,
+		_, err := http.Post(TransactionAPIbaseURL,
 		"application/json", bytes.NewBuffer(transactionToAdd))
 		
 		if err != nil{
