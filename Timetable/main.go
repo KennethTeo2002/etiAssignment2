@@ -10,7 +10,6 @@ import(
 	"encoding/json"
 	"io/ioutil"
 	"strings"
-	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -42,8 +41,11 @@ func getSemStart(currentDate time.Time)string{
 func getSemCurrrent(date string)string{
 	datetime,_ := time.Parse("02-01-2006",date)
 	daysUntilMon := (1 - int(datetime.Weekday())+7) % 7
-	semStartDate := datetime.AddDate(0,0,daysUntilMon).AddDate(0,0,-7).Format("02-01-2006")
-	return semStartDate
+	if daysUntilMon == 0{
+		return datetime.Format("02-01-2006")
+	}else{
+		return datetime.AddDate(0,0,daysUntilMon).AddDate(0,0,-7).Format("02-01-2006")
+	}
 }
 
 const ClassAPIbaseURL =  "http://10.31.11.11:8041/api/v1/classes"
