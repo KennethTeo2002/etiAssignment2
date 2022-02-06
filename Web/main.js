@@ -174,7 +174,7 @@ app.get("/timetable", (req, res) => {
   axios
     .get(apiurl)
     .then(function (response) {
-      timetablehtml = response.data;
+      timetablehtml += response.data;
     })
     .catch(function (error) {
       timetablehtml = "<h1>Error getting timetable</h1>";
