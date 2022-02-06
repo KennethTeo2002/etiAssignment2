@@ -241,13 +241,19 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				classToUpdate,_ := json.Marshal(class)
 
 				w.Write([]byte("url: "+ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode + "classinfo: "+ string(classToUpdate)))
-				_, err := http.NewRequest(http.MethodPut,
+				request, _ := http.NewRequest(http.MethodPut,
 					ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode,
 					bytes.NewBuffer(classToUpdate))
+					
+				request.Header.Set("Content-Type", "application/json")
+
+				client := &http.Client{}
+				_, err := client.Do(request)
 				
 				if err != nil {
 					fmt.Printf("The HTTP request failed with error %s\n", err)
-				}			
+				}
+						
 			}
 				
 		}
