@@ -241,7 +241,6 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				classToUpdate,_ := json.Marshal(class)
 
 				w.Write([]byte("url: "+ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode + "classinfo: "+ string(classToUpdate)))
-				return
 				_, err := http.NewRequest(http.MethodPut,
 					ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode,
 					bytes.NewBuffer(classToUpdate))
