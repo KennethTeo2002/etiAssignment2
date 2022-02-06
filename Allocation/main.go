@@ -81,7 +81,6 @@ func getSemStart(currentDate time.Time)string{
 
 // 3.15.2: allocate classes by bids
 func allocateBid(w http.ResponseWriter, r *http.Request){
-	
 	var semBids SemesterBids 
 	var semClasses Semester 
 
@@ -136,9 +135,6 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			return
 		}
 	}
-	
-
-	
 
 	// unpack bidding struct into 1d array
 	allBids := []BidInfo{}
@@ -289,6 +285,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 		return
 	}else{
 		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("200 - allocated all students to classes"))
 		return
 	}
 }
