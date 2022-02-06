@@ -209,6 +209,8 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				data,_ := ioutil.ReadAll(response.Body)
 				 
 				json.Unmarshal([]byte(data), &sem)
+				w.Write([]byte(data))
+				return
 			} else{
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
@@ -218,8 +220,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		w.Write([]byte(sem))
-		return
+		
 
 		availableTimeSchedule := []string{
 			"Monday 09:00 - 11:00","Monday 11:00 - 13:00","Monday 14:00 - 16:00","Monday 16:00 - 18:00", 
