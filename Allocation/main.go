@@ -69,7 +69,7 @@ type TransactionInfo struct{
 }
 
 
-const BidAPIbaseURL  = "http://10.31.11.11:8221/api/v1/bids"
+const BidAPIbaseURL  = "http://10.31.11.11:8221/api/v1/bid"
 const ClassAPIbaseURL =  "http://10.31.11.11:8041/api/v1/classes"
 const TransactionAPIbaseURL = "http://10.31.11.11:8053/Transaction/new"
 
@@ -88,7 +88,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 	// get all bids from 3.14
 	
 	newSem := getSemStart(time.Now().In(time.FixedZone("UTC+8", 8*60*60)))
-	resBids,errBids := http.Get(BidAPIbaseURL+"?semester=" + newSem)
+	resBids,errBids := http.Get(BidAPIbaseURL+ "/" + newSem)
 	if errBids != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errBids)
 		w.WriteHeader(
@@ -115,7 +115,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 
 	// get all classes from 3.8
 	
-	resClass,errClass := http.Get(ClassAPIbaseURL+"?semester=" + newSem)
+	resClass,errClass := http.Get(ClassAPIbaseURL + "/"+ newSem)
 	if errClass != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", errClass)
 		w.WriteHeader(

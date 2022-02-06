@@ -59,7 +59,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 		
 		if semester,ok := v["semester"]; ok {
 			semesterMonday := getSemCurrrent(semester[0])
-			response,err := http.Get(ClassAPIbaseURL+"?semester=" + semesterMonday)
+			response,err := http.Get(ClassAPIbaseURL+"/" + semesterMonday)
 			if err != nil {
 				fmt.Printf("The HTTP request failed with error %s\n", err)
 
@@ -196,7 +196,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 	// allocate class schedule
 		newSem := getSemStart(time.Now().In(time.FixedZone("UTC+8", 8*60*60)))
 		// get all classes for next semester
-		response,err := http.Get(ClassAPIbaseURL+"?semester=" + newSem)
+		response,err := http.Get(ClassAPIbaseURL+ "/"+newSem)
 		if err != nil {
 			fmt.Printf("The HTTP request failed with error %s\n", err)
 		} else{
