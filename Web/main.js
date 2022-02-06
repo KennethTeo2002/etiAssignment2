@@ -170,7 +170,7 @@ app.get("/timetable", (req, res) => {
     apiurl += "&semester=" + req.query.semester;
   }
   console.log(apiurl);
-
+  timetablehtml = apiurl;
   axios
     .get(apiurl)
     .then(function (response) {
