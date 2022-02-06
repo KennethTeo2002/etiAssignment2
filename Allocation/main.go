@@ -315,10 +315,9 @@ func refundTransaction(bid BidInfo)bool{
 	if err != nil{
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	} else{
-		if response.StatusCode == http.StatusOK{
-			fmt.Println("refund tokens to " + bid.StudentID)
-			apiErr = false
-		}
+		fmt.Println("refund tokens to " + bid.StudentID)
+		apiErr = false
+		
 	}
 
 	return apiErr

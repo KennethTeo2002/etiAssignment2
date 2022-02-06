@@ -78,12 +78,8 @@ func addAll(w http.ResponseWriter, r *http.Request){
 			fmt.Printf("The HTTP request failed with error %s\n", err)
 			allTransactionPassed = false
 		} else{
-			if response.StatusCode == http.StatusOK{
-				fmt.Println("Succesfully added tokens to " + student)
-			}else{
-				fmt.Println("Failed to add tokens to " + student)
-				allTransactionPassed = false
-			}
+			fmt.Println("Succesfully added tokens to " + student)
+			
 		}
 	}
 	// return status code
