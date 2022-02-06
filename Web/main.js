@@ -162,19 +162,18 @@ app.get("/timetable", (req, res) => {
   //break down url to query api
   var apiurl = timetableAPIURL;
   if (req.query.studentID) {
-    apiurl += "?studentID=" + req.query.studentid;
+    apiurl += "?studentID=" + req.query.studentID;
   } else if (req.query.tutorID) {
-    apiurl += "?tutorID=" + req.query.tutorid;
+    apiurl += "?tutorID=" + req.query.tutorID;
   }
   if (req.query.semester) {
     apiurl += "&semester=" + req.query.semester;
   }
   console.log(apiurl);
-  timetablehtml = apiurl;
   axios
     .get(apiurl)
     .then(function (response) {
-      timetablehtml += response.data;
+      timetablehtml = response.data;
     })
     .catch(function (error) {
       timetablehtml = "<h1>Error getting timetable</h1>";
