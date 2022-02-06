@@ -178,7 +178,7 @@ app.get("/timetable", (req, res) => {
     })
     .catch(function (error) {
       timetablehtml = "<h1>Error getting timetable</h1>";
-      timetablehtml = "apiurl" + error;
+      timetablehtml = apiurl + error;
     });
   res.locals.query = req.query;
   res.render("timetable", {
