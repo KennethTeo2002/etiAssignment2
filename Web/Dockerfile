@@ -9,6 +9,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+COPY ./public ./public
 
 EXPOSE 8070
 
