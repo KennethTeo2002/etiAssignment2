@@ -161,9 +161,9 @@ app.post("/timetable", (req, res) => {
 app.get("/timetable", (req, res) => {
   //break down url to query api
   var apiurl = timetableAPIURL;
-  if (req.query.studentid) {
+  if (req.query.studentID) {
     apiurl += "?studentID=" + req.query.studentid;
-  } else if (req.query.tutorid) {
+  } else if (req.query.tutorID) {
     apiurl += "?tutorID=" + req.query.tutorid;
   }
   if (req.query.semester) {
