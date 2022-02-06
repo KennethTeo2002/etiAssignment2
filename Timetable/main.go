@@ -199,6 +199,11 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 		response,err := http.Get(ClassAPIbaseURL+ "/"+newSem)
 		if err != nil {
 			fmt.Printf("The HTTP request failed with error %s\n", err)
+			w.WriteHeader(
+				http.StatusUnprocessableEntity)
+			w.Write([]byte(
+				"422 - failed to retrieve all classes from class API"))
+			return
 		} else{
 			if response.StatusCode == http.StatusOK{
 				data,_ := ioutil.ReadAll(response.Body)
