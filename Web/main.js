@@ -11,8 +11,7 @@ const timetableAPIURL = "http://10.31.11.11:8073/api/timetable";
 var timetablehtml = "";
 
 app.use(express.static("public"));
-
-app.use("/js", express.static(__dirname + "public/js"));
+app.use("/js", express.static(__dirname + "Public/js"));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
