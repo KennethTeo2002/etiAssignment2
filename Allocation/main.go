@@ -59,13 +59,13 @@ type Semester struct {
 }
 
 type TransactionInfo struct{
-	ttype string
-	sid string
-	rid string
-	ts string
-	tsym string
-	ta int
-	stat string
+	Ttype string
+	Sid string
+	Rid string
+	Ts string
+	Tsym string
+	Ta int
+	Stat string
 }
 
 
@@ -298,13 +298,13 @@ func refundTransaction(bid BidInfo)bool{
 		currentDateTime.Hour(), currentDateTime.Minute(), currentDateTime.Second())
 
 	transactionDetails := TransactionInfo{
-				ttype: "BidRefund",
-				sid: "BidRefund",
-				rid: bid.StudentID,
-				ts: formattedDT,
-				tsym: "ETI",
-				ta: bid.BidAmount,
-				stat: "ping",
+				Ttype: "BidRefund",
+				Sid: "BidRefund",
+				Rid: bid.StudentID,
+				Ts: formattedDT,
+				Tsym: "ETI",
+				Ta: bid.BidAmount,
+				Stat: "ping",
 			}
 
 	transactionToAdd, _ := json.Marshal(transactionDetails)
