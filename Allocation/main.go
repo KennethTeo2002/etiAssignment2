@@ -217,7 +217,7 @@ func allocateBid(w http.ResponseWriter, r *http.Request){
 			transactionError := refundTransaction(bid)
 			if transactionError{
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte("422 - failed to send transaction api"))
+				w.Write([]byte("422 - failed to send transaction api for " +bid.StudentID))
 				return
 			}
 
