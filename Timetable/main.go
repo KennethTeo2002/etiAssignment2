@@ -209,8 +209,7 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				data,_ := ioutil.ReadAll(response.Body)
 				 
 				json.Unmarshal([]byte(data), &sem)
-				w.Write([]byte(data))
-				return
+				
 			} else{
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
@@ -240,6 +239,9 @@ func timeTable(w http.ResponseWriter, r *http.Request) {
 				// send put request to set schedule datetime
 				
 				classToUpdate,_ := json.Marshal(class)
+
+				w.Write([]byte("url: "+ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode + "classinfo: "+ string(classToUpdate)))
+				return
 				_, err := http.NewRequest(http.MethodPut,
 					ClassAPIbaseURL+"/"+sem.SemesterStartDate + "?moduleCode=" + module.ModuleCode + "&classCode=" + class.ClassCode,
 					bytes.NewBuffer(classToUpdate))
